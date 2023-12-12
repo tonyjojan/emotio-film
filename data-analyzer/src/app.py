@@ -96,7 +96,7 @@ def StartConsuming():
     def callback(ch, method, properties, body):
         print("in callback")
         get_data_from_collector()
-    print(' [*] Waiting for messages:')
+    print(' [*] Waiting for messages:', flush=True)
     channel.basic_consume('read-notif',
                         callback,
                         auto_ack=True)
