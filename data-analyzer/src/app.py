@@ -35,7 +35,7 @@ def perform_sentiment_analysis(input):
 def main():
     return '''
      <form action="/echo_user_input" method="POST">
-	<h1>ANALYZER1</h1>
+	<h1>ANALYZER12</h1>
          <input name="user_input">
          <input type="submit" value="Submit!">
      </form>
