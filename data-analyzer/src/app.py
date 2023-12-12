@@ -104,7 +104,7 @@ def StartConsuming():
     channel.basic_consume('read-notif',
                         callback,
                         auto_ack=True)
-
+    os.sleep(60*60*3)
     
 
     connection.close()
