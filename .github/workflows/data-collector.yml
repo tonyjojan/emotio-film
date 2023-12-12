@@ -12,12 +12,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
       - name: Install dependencies
+        uses: actions/checkout@v2
         run: |
           pwd
           ls
@@ -27,6 +27,8 @@ jobs:
         run: |
           pip install pytest
           python -m pytest
+
+      - uses: actions/checkout@v2
       - name: Add backend remote origin
         run: git remote add heroku-collector https://heroku:${{ secrets.HEROKU_API_TOKEN }}@git.heroku.com/${{ secrets.HEROKU_COLLECTOR_APP_NAME }}.git
       - name: Deploy backend to Heroku
