@@ -13,6 +13,14 @@ conn = sqlite3.connect('database1.db')
 conn.execute('CREATE TABLE IF NOT EXISTS sentiment_movies (name TEXT, sentiment DECIMAL(10,10))')
 conn.close()
 
+def perform_sentiment_analysis(input):
+    blob = TextBlob(input)
+    polarity = blob.sentiment.polarity
+    with sqlite3.connect("database1.db") as connection:
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO sentiment_movies (name,sentiment) VALUES (?,?)",(input, polarity))
+        connection.commit()
+        
 def get_data_from_collector():
     with sqlite3.connect("database1.db") as connection:
         cursor = connection.cursor()
@@ -45,13 +53,7 @@ connection.close()
 
         
 
-def perform_sentiment_analysis(input):
-    blob = TextBlob(input)
-    polarity = blob.sentiment.polarity
-    with sqlite3.connect("database1.db") as connection:
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO sentiment_movies (name,sentiment) VALUES (?,?)",(input, polarity))
-        connection.commit()
+
 
 @app.route("/")
 def main():
