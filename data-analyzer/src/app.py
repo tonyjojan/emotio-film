@@ -9,6 +9,10 @@ import pika, os
 
 app = Flask(__name__)
 
+conn = sqlite3.connect('database1.db')
+conn.execute('CREATE TABLE IF NOT EXISTS sentiment_movies (name TEXT, sentiment DECIMAL(10,10))')
+conn.close()
+
 def get_data_from_collector():
     with sqlite3.connect("database1.db") as connection:
         cursor = connection.cursor()
@@ -18,7 +22,7 @@ def get_data_from_collector():
     json_r = r.json()
     for element in json_r:
         perform_sentiment_analysis(element[0])
-        
+
 # Access the CLODUAMQP_URL environment variable and parse it (fallback to localhost)
 url = 'amqp://sjqvozfu:csP8z9MrrJfNrTFVIqLI76FTZ9iCvBmk@gull.rmq.cloudamqp.com/sjqvozfu'
 params = pika.URLParameters(url)
@@ -37,9 +41,7 @@ channel.start_consuming()
 connection.close()
 
 
-conn = sqlite3.connect('database1.db')
-conn.execute('CREATE TABLE IF NOT EXISTS sentiment_movies (name TEXT, sentiment DECIMAL(10,10))')
-conn.close()
+
 
         
 
