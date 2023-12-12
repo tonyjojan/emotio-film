@@ -16,7 +16,7 @@ def client():
 
 @pytest.fixture
 def session(): # 1
-    connection = sqlite3.connect("database.db")
+    connection = sqlite3.connect("database1.db")
     db_session = connection.cursor()
     yield db_session
     connection.close()
