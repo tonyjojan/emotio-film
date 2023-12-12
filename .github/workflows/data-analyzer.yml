@@ -16,5 +16,5 @@ jobs:
       - name: Add backend remote origin
         run: git remote add heroku-analyzer https://heroku:${{ secrets.HEROKU_API_TOKEN }}@git.heroku.com/${{ secrets.HEROKU_ANALYZER_APP_NAME }}.git
       - name: Deploy backend to Heroku
-        run: git push heroku-analyzer `git subtree split --prefix data-analyzer master`:refs/heads/master --force
+        run: git push heroku-analyzer `git subtree split --prefix data-analyzer main`:refs/heads/main --force
 
