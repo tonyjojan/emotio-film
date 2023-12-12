@@ -110,7 +110,7 @@ def StartConsuming():
     connection.close()
 
 if __name__ == '__main__':
-    t1 = threading.Thread(target=StartConsuming, daemon=True)
+    t1 = threading.Thread(target=StartConsuming, name="consume_thread", daemon=True)
     t1.start()
     print("Running app")
     app.run(host='0.0.0.0', port=9892)
