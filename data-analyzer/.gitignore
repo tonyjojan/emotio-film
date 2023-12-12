@@ -1,3 +1,5 @@
 venv
 database.db
 database1.db
+tests/__pycache__
+src/__pycache__
