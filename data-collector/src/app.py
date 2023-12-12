@@ -1,8 +1,47 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request, jsonify
-
+from flask import Flask, request, jsonify, Response
+from urllib.request import urlopen
+import sqlite3
+import ssl
+import json
+import requests
 app = Flask(__name__)
+from bs4 import BeautifulSoup
+import re 
+HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+
+conn = sqlite3.connect('database.db')
+print("Opened database successfully");
+conn.execute('CREATE TABLE IF NOT EXISTS movies (name TEXT)')
+print ("Table created successfully");
+conn.close()
+ssl._create_default_https_context = ssl._create_unverified_context
+
+
+def scrape():
+    r = requests.get('http://www.imdb.com/chart/top/', headers=HEADERS)
+    # url = "http://www.imdb.com/chart/top/"
+    # page = urlopen(url)
+    # html_raw = page.read()
+    # html = html_raw.decode("utf-8")
+    # print(html)
+    with sqlite3.connect("database.db") as connection:
+        cursor = connection.cursor()
+        cursor.execute("DELETE from movies;")
+        connection.commit()
+    soup = BeautifulSoup(r.text, 'html.parser')
+    movie_names = soup.find_all('h3', class_='ipc-title__text')
+    for movie_name in movie_names:
+        #remove movie number from name
+        pattern = r'[0-9]'
+        movie_formatted_with_prefix = re.sub(pattern, '', movie_name.text)
+        movie_name_cleaned = movie_formatted_with_prefix[2:]
+        #add to DB
+        with sqlite3.connect("database.db") as connection:
+            cursor = connection.cursor()
+            cursor.execute("INSERT INTO movies (name) VALUES (?)",(movie_name_cleaned,))
+            connection.commit()
 
 @app.route("/")
 def main():
@@ -24,6 +63,19 @@ def test_endpt():
     return jsonify({
         'status' : 'alive'
     })
+
+@app.route("/movies", methods=["GET"])
+def getMovies():
+    scrape()
+    with sqlite3.connect("database.db") as connection:
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM movies")
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+        return Response(json.dumps(rows),  mimetype='application/json')
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=9891)

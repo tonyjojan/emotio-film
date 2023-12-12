@@ -5,3 +5,8 @@ def test_endpt(app,client):
     rv = client.get('/test_endpoint')
     assert b'alive' in rv.data
 
+def test_get_movies(app,client):
+    rv = client.get('movies')
+    assert b'Rated English Movies' in rv.data
+    assert len(rv.data) > 1000
+
