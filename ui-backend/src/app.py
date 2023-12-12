@@ -19,6 +19,7 @@ def send_get_request():
     print(select_value)
     match select_value:
         case "1":
+            print("selected1")
             return load_movies('https://data-analyzer-354624b71875.herokuapp.com/positive_movies', "Positive")
             print("selected")
         case "2":
@@ -30,7 +31,9 @@ def send_get_request():
 def load_movies(url, type):
     movie_list = []
     movie_list.append(type)
+    print("url: "+ url)
     r = requests.get(url)
+    print("r" + r)
     json_r = r.json()
     for element in json_r:
         movie_list.append(element[0])

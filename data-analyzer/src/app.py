@@ -76,9 +76,11 @@ def check_movies():
 
 @app.route("/positive_movies", methods=["GET"])
 def positive_movies():
+    print("in pos mpv")
     with sqlite3.connect("database1.db") as connection:
         cur = connection.cursor()
         cur.execute("SELECT name FROM sentiment_movies WHERE sentiment > 0.0")
+        print("after cur execute")
         rows = cur.fetchall()
         return Response(json.dumps(rows),  mimetype='application/json')
 
