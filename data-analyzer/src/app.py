@@ -62,6 +62,10 @@ def check_movies():
 @app.route("/positive_movies", methods=["GET"])
 def positive_movies():
     print("in pos mpv")
+    print("threads:")
+    for thread in threading.enumerate(): 
+        print(thread.name)
+    print("end threads")
     with sqlite3.connect("database1.db") as connection:
         cur = connection.cursor()
         cur.execute("SELECT name FROM sentiment_movies WHERE sentiment > 0.0")
