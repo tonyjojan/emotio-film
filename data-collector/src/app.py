@@ -71,8 +71,6 @@ def getMovies():
         cur = connection.cursor()
         cur.execute("SELECT * FROM movies")
         rows = cur.fetchall()
-        for row in rows:
-            print(row)
         return Response(json.dumps(rows),  mimetype='application/json')
 
 
