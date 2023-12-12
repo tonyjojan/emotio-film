@@ -6,7 +6,7 @@ from textblob import TextBlob
 import sqlite3
 import json
 import pika, os
-
+import threading
 app = Flask(__name__)
 
 conn = sqlite3.connect('database1.db')
@@ -31,22 +31,7 @@ def get_data_from_collector():
     for element in json_r:
         perform_sentiment_analysis(element[0])
 
-# Access the CLODUAMQP_URL environment variable and parse it (fallback to localhost)
-url = 'amqp://sjqvozfu:csP8z9MrrJfNrTFVIqLI76FTZ9iCvBmk@gull.rmq.cloudamqp.com/sjqvozfu'
-params = pika.URLParameters(url)
-connection = pika.BlockingConnection(params)
-channel = connection.channel() # start a channel
-channel.queue_declare(queue='read-notif') # Declare a queue
-def callback(ch, method, properties, body):
-  get_data_from_collector()
 
-channel.basic_consume('read-notif',
-                      callback,
-                      auto_ack=True)
-
-print(' [*] Waiting for messages:')
-channel.start_consuming()
-connection.close()
 
 
 
@@ -100,5 +85,27 @@ def negative_movies():
         rows = cur.fetchall()
         return Response(json.dumps(rows),  mimetype='application/json')
 
+def StartConsuming():
+    # Access the CLODUAMQP_URL environment variable and parse it (fallback to localhost)
+    url = 'amqp://sjqvozfu:csP8z9MrrJfNrTFVIqLI76FTZ9iCvBmk@gull.rmq.cloudamqp.com/sjqvozfu'
+    params = pika.URLParameters(url)
+    connection = pika.BlockingConnection(params)
+    channel = connection.channel() # start a channel
+    channel.queue_declare(queue='read-notif') # Declare a queue
+    def callback(ch, method, properties, body):
+        get_data_from_collector()
+
+    channel.basic_consume('read-notif',
+                        callback,
+                        auto_ack=True)
+
+    print(' [*] Waiting for messages:')
+
+    connection.close()
+
 if __name__ == '__main__':
+    t1 = threading.Thread(target=StartConsuming, daemon=True)
+    t1.start()
+    print("Running app")
     app.run(host='0.0.0.0', port=9892)
+
