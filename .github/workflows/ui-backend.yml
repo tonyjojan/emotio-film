@@ -3,7 +3,7 @@ name: Deploy to Heroku (ui-backend)
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "ui-backend/**"
       - ".github/workflows/ui-backend.yml"

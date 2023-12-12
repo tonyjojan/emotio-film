@@ -3,7 +3,7 @@ name: Deploy to Heroku (data-collector)
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "data-collector/**"
       - ".github/workflows/data-collector.yml"
