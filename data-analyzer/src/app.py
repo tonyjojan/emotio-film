@@ -67,6 +67,7 @@ def positive_movies():
         cur.execute("SELECT name FROM sentiment_movies WHERE sentiment > 0.0")
         print("after cur execute")
         rows = cur.fetchall()
+        print("json is " + json.dumps(rows))
         return Response(json.dumps(rows),  mimetype='application/json')
 
 @app.route("/neutral_movies", methods=["GET"])
@@ -93,6 +94,7 @@ def StartConsuming():
     channel = connection.channel() # start a channel
     channel.queue_declare(queue='read-notif') # Declare a queue
     def callback(ch, method, properties, body):
+        print("in callback")
         get_data_from_collector()
 
     channel.basic_consume('read-notif',
