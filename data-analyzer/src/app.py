@@ -5,9 +5,28 @@ import requests
 from textblob import TextBlob
 import sqlite3
 import json
-
+import pika, os
 
 app = Flask(__name__)
+
+
+# Access the CLODUAMQP_URL environment variable and parse it (fallback to localhost)
+url = 'amqp://sjqvozfu:csP8z9MrrJfNrTFVIqLI76FTZ9iCvBmk@gull.rmq.cloudamqp.com/sjqvozfu'
+params = pika.URLParameters(url)
+connection = pika.BlockingConnection(params)
+channel = connection.channel() # start a channel
+channel.queue_declare(queue='read-notif') # Declare a queue
+def callback(ch, method, properties, body):
+  get_data_from_collector()
+
+channel.basic_consume('read-notif',
+                      callback,
+                      auto_ack=True)
+
+print(' [*] Waiting for messages:')
+channel.start_consuming()
+connection.close()
+
 
 conn = sqlite3.connect('database1.db')
 conn.execute('CREATE TABLE IF NOT EXISTS sentiment_movies (name TEXT, sentiment DECIMAL(10,10))')
