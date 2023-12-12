@@ -6,10 +6,27 @@ import sqlite3
 import ssl
 import json
 import requests
+import pika, os
+
 app = Flask(__name__)
 from bs4 import BeautifulSoup
 import re 
 HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+
+# Access the CLODUAMQP_URL environment variable and parse it (fallback to localhost)
+url = 'amqp://sjqvozfu:csP8z9MrrJfNrTFVIqLI76FTZ9iCvBmk@gull.rmq.cloudamqp.com/sjqvozfu'
+params = pika.URLParameters(url)
+connection = pika.BlockingConnection(params)
+channel = connection.channel() # start a channel
+channel.queue_declare(queue='read-notif') # Declare a queue
+channel.basic_publish(exchange='',
+                      routing_key='read-notif',
+                      body='Hello CloudAMQP!')
+
+print(" [x] Sent 'Hello World!'")
+connection.close()
+
+
 
 conn = sqlite3.connect('database.db')
 print("Opened database successfully");
@@ -26,10 +43,10 @@ def scrape():
     # html_raw = page.read()
     # html = html_raw.decode("utf-8")
     # print(html)
-    with sqlite3.connect("database.db") as connection:
-        cursor = connection.cursor()
+    with sqlite3.connect("database.db") as db_connection:
+        cursor = db_connection.cursor()
         cursor.execute("DELETE from movies;")
-        connection.commit()
+        db_connection.commit()
     soup = BeautifulSoup(r.text, 'html.parser')
     movie_names = soup.find_all('h3', class_='ipc-title__text')
     for movie_name in movie_names:
@@ -38,10 +55,18 @@ def scrape():
         movie_formatted_with_prefix = re.sub(pattern, '', movie_name.text)
         movie_name_cleaned = movie_formatted_with_prefix[2:]
         #add to DB
-        with sqlite3.connect("database.db") as connection:
-            cursor = connection.cursor()
+        with sqlite3.connect("database.db") as db_connection:
+            cursor = db_connection.cursor()
             cursor.execute("INSERT INTO movies (name) VALUES (?)",(movie_name_cleaned,))
-            connection.commit()
+            db_connection.commit()
+    connection = pika.BlockingConnection(params)
+    channel = connection.channel() # start a channel
+    channel.queue_declare(queue='read-notif') # Declare a queue
+    channel.basic_publish(exchange='',
+            routing_key='read-notif',
+            body='now analyze!')
+    print(" [x] Sent 'analyzedirec'")
+    connection.close()
 
 @app.route("/")
 def main():
