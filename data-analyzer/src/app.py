@@ -16,16 +16,16 @@ conn.close()
 def perform_sentiment_analysis(input):
     blob = TextBlob(input)
     polarity = blob.sentiment.polarity
-    with sqlite3.connect("database1.db") as connection:
-        cursor = connection.cursor()
+    with sqlite3.connect("database1.db") as db_connection:
+        cursor = db_connection.cursor()
         cursor.execute("INSERT INTO sentiment_movies (name,sentiment) VALUES (?,?)",(input, polarity))
-        connection.commit()
-        
+        db_connection.commit()
+
 def get_data_from_collector():
-    with sqlite3.connect("database1.db") as connection:
-        cursor = connection.cursor()
+    with sqlite3.connect("database1.db") as db_connection:
+        cursor = db_connection.cursor()
         cursor.execute("DELETE from sentiment_movies;")
-        connection.commit()
+        db_connection.commit()
     r = requests.get('https://data-collector-1014dc8647ce.herokuapp.com/movies')
     json_r = r.json()
     for element in json_r:
